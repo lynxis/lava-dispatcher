@@ -27,6 +27,7 @@ from lava_dispatcher.pipeline.actions.deploy import DeployAction
 from lava_dispatcher.pipeline.actions.deploy.apply_overlay import ExtractRootfs, ExtractModules
 from lava_dispatcher.pipeline.actions.deploy.environment import DeployDeviceEnvironment
 from lava_dispatcher.pipeline.actions.deploy.download import DownloaderAction
+from lava_dispatcher.pipeline.power import PowerOn, PowerOff
 from lava_dispatcher.pipeline.utils.constants import DISPATCHER_DOWNLOAD_DIR
 from lava_dispatcher.pipeline.utils.shell import infrastructure_error
 
@@ -40,7 +41,7 @@ class Flashrom(Deployment):
 
     def __init__(self, parent, parameters):
         super(Flashrom, self).__init__(parent)
-        self.action = FlashSPI()
+        self.action = FlashRomDeploy()
         self.action.job = self.job
         parent.add_action(self.action, parameters)
 
@@ -56,13 +57,13 @@ class Flashrom(Deployment):
             return False
         return True
 
-class FlashSPI(DeployAction):
+class FlashRomDeploy(DeployAction):
     # call flashrom but before put CopyViaScp into pipline
     def __init__(self):
-        super(FlashSPI, self).__init__()
+        super(FlashRomDeploy, self).__init__()
         self.name = "flashrom"
-        self.summary = "flash a specific image via flashrom"
-        self.description = "flash a specific imgae via flashrom"
+        self.summary = "deploy a coreboot image via flashrom"
+        self.description = "deploy a coreboot image via flashrom"
         self.section = 'deploy'
         self.items = []
         try:
@@ -72,7 +73,7 @@ class FlashSPI(DeployAction):
             self.suffix = '/'
 
     def validate(self):
-        super(FlashSPI, self).validate()
+        super(FlashRomDeploy, self).validate()
         if 'coreboot' not in self.parameters:
             self.errors = "%s needs a coreboot to deploy" % self.name
         if not self.valid:
@@ -89,5 +90,14 @@ class FlashSPI(DeployAction):
         # download coreboot image
         download = DownloaderAction('coreboot', path=self.scp_dir)
         download.max_retries = 3  # overridden by failure_retry in the parameters, if set.
+        self.internal_pipeline.add_action(PowerOff())
         self.internal_pipeline.add_action(download)
+        self.internal_pipeline.add_action(FlashSPI())
+        self.internal_pipeline.add_action(PowerOn())
 
+class FlashSPI(Action):
+    def __init__(self):
+        super(FlashSPI, self).__init__()
+        self.name = "flash spi"
+        self.summary = "execute flashrom to flash the device"
+        self.description = "execute flashrom to flash the device"
