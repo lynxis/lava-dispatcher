@@ -21,7 +21,7 @@
 import os
 from lava_dispatcher.pipeline.logical import Deployment
 from lava_dispatcher.pipeline.connections.ssh import Scp
-from lava_dispatcher.pipeline.action import Pipeline, Action
+from lava_dispatcher.pipeline.action import Pipeline, Action, InfrastructureError
 from lava_dispatcher.pipeline.utils.filesystem import mkdtemp
 from lava_dispatcher.pipeline.actions.deploy import DeployAction
 from lava_dispatcher.pipeline.actions.deploy.apply_overlay import ExtractRootfs, ExtractModules
@@ -90,14 +90,67 @@ class FlashRomDeploy(DeployAction):
         # download coreboot image
         download = DownloaderAction('coreboot', path=self.scp_dir)
         download.max_retries = 3  # overridden by failure_retry in the parameters, if set.
+        # download coreboot image
+        flashspi = FlashSPI('coreboot', path=self.scp_dir)
         self.internal_pipeline.add_action(PowerOff())
         self.internal_pipeline.add_action(download)
-        self.internal_pipeline.add_action(FlashSPI())
+        self.internal_pipeline.add_action(SPIPowerOn())
+        self.internal_pipeline.add_action(flashspi)
+        self.internal_pipeline.add_action(SPIPowerOff())
         self.internal_pipeline.add_action(PowerOn())
 
 class FlashSPI(Action):
-    def __init__(self):
+    def __init__(self, key, path):
         super(FlashSPI, self).__init__()
         self.name = "flash spi"
         self.summary = "execute flashrom to flash the device"
         self.description = "execute flashrom to flash the device"
+        self.key = key  # the key in the parameters of what to download
+        self.path = path  # where to download
+
+    def run(self):
+        connection = super(FlashSPI, self).run(connection, args)
+        command_output = self.run_command(adb_cmd)
+
+class SPIPowerOn(Action):
+    """
+    Turn on external SPI power
+    """
+    def __init__(self):
+        super(SPIPowerOn, self).__init__()
+        self.name = "spi_power_on"
+        self.summary = "send power_on command to SPI"
+        self.description = "power on to extern SPI power"
+
+    def run(self, connection, args=None):
+        connection = super(SPIPowerOn, self).run(connection, args)
+        if not hasattr(self.job.device, 'power_state'):
+            return connection
+
+        if self.job.device.power_state is not 'off':
+            raise RuntimeError("device is powered. This can break the device!")
+
+        command = self.job.device['commands']['spi_power_on']
+        if not self.run_command(command.split(' ')):
+            raise InfrastructureError("%s command failed" % command)
+        return connection
+
+class SPIPowerOff(Action):
+    """
+    Turns off external SPI power
+    """
+    def __init__(self):
+        super(SPIPowerOff, self).__init__()
+        self.name = "spi_power_off"
+        self.summary = "send power_off command to SPI"
+        self.description = "discontinue power to extern SPI power"
+
+    def run(self, connection, args=None):
+        connection = super(SPIPowerOff, self).run(connection, args)
+        if not hasattr(self.job.device, 'power_state'):
+            return connection
+
+        command = self.job.device['commands']['spi_power_off']
+        if not self.run_command(command.split(' ')):
+            raise InfrastructureError("%s command failed" % command)
+        return connection
