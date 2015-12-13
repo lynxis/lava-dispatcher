@@ -105,12 +105,13 @@ class FlashSPI(Action):
         self.name = "flash spi"
         self.summary = "execute flashrom to flash the device"
         self.description = "execute flashrom to flash the device"
-        self.key = key  # the key in the parameters of what to download
-        self.path = path  # where to download
+        self.path = path  # path to the image to flash
 
-    def run(self):
+    def run(self, connection, args=None):
         connection = super(FlashSPI, self).run(connection, args)
-        command_output = self.run_command(adb_cmd)
+        flashrom_cmd = "flashrom -p linux_spi:dev=%s -c %s -w %s" % \
+                (self.job.device["flashrom"]["dev"], self.job.device["flashrom"]["chip"], self.path)
+        command_output = self.run_command(flashrom_cmd)
 
 class SPIPowerOn(Action):
     """
