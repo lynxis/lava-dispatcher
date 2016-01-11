@@ -98,6 +98,7 @@ class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attribut
         self.internal_pipeline.add_action(flashspi)
         self.internal_pipeline.add_action(SPIPowerOff())
         self.internal_pipeline.add_action(PowerOn())
+        self.internal_pipeline.add_action(PowerButton())
 
 class FlashSPI(Action):
     def __init__(self, path):
@@ -155,3 +156,21 @@ class SPIPowerOff(Action):
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
         return connection
+
+class PowerButton(Action):
+    """
+    press the power button
+    """
+    def __init__(self):
+        super(PowerButton, self).__init__()
+        self.name = "power_button"
+        self.summary = "press the power button"
+        self.description = "press the power button."
+
+    def run(self, connection, args=None):
+        connection = super(PowerButton, self).run(connection, args)
+        command = self.job.device['commands']['power_button']
+        if not self.run_command(command.split(' ')):
+            raise InfrastructureError("%s command failed" % command)
+        return connection
+
