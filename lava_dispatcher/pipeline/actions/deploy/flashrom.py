@@ -91,7 +91,7 @@ class FlashRomDeploy(DeployAction):
         download = DownloaderAction('coreboot', path=self.scp_dir)
         download.max_retries = 3  # overridden by failure_retry in the parameters, if set.
         # download coreboot image
-        flashspi = FlashSPI('coreboot', path=self.scp_dir)
+        flashspi = FlashSPI(path=self.scp_dir + '/coreboot')
         self.internal_pipeline.add_action(PowerOff())
         self.internal_pipeline.add_action(download)
         self.internal_pipeline.add_action(SPIPowerOn())
@@ -100,7 +100,7 @@ class FlashRomDeploy(DeployAction):
         self.internal_pipeline.add_action(PowerOn())
 
 class FlashSPI(Action):
-    def __init__(self, key, path):
+    def __init__(self, path):
         super(FlashSPI, self).__init__()
         self.name = "flash spi"
         self.summary = "execute flashrom to flash the device"
