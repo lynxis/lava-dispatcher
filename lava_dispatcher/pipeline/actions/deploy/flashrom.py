@@ -53,11 +53,11 @@ class Flashrom(Deployment):
             return False
         if 'flashrom' not in device['actions']['deploy']['methods']:
             return False
-        if 'to' in parameters and 'flashrom' != parameters['to']:
+        if 'to' in parameters and parameters['to'] != 'flashrom':
             return False
         return True
 
-class FlashRomDeploy(DeployAction):
+class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attributes
     # call flashrom but before put CopyViaScp into pipline
     def __init__(self):
         super(FlashRomDeploy, self).__init__()
