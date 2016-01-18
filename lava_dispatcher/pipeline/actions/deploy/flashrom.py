@@ -66,11 +66,11 @@ class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attribut
         self.description = "deploy a coreboot image via flashrom"
         self.section = 'deploy'
         self.items = []
+        self.download_dir = DISPATCHER_DOWNLOAD_DIR
         try:
-            self.scp_dir = mkdtemp(basedir=DISPATCHER_DOWNLOAD_DIR)
+            self.download_dir = mkdtemp(basedir=DISPATCHER_DOWNLOAD_DIR)
         except OSError:
-            # allows for unit tests to operate as normal user.
-            self.suffix = '/'
+            pass
 
     def validate(self):
         super(FlashRomDeploy, self).validate()
@@ -80,18 +80,15 @@ class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attribut
             return
         lava_test_results_dir = self.parameters['deployment_data']['lava_test_results_dir']
         self.data['lava_test_results_dir'] = lava_test_results_dir % self.job.job_id
-        if self.suffix:
-            self.data[self.name].setdefault('suffix', self.suffix)
-        self.data[self.name].setdefault('suffix', os.path.basename(self.scp_dir))
         self.errors = infrastructure_error('flashrom')
 
     def populate(self, parameters):
         self.internal_pipeline = Pipeline(parent=self, job=self.job, parameters=parameters)
         # download coreboot image
-        download = DownloaderAction('coreboot', path=self.scp_dir)
+        download = DownloaderAction('coreboot', path=self.download_dir)
         download.max_retries = 3  # overridden by failure_retry in the parameters, if set.
         # download coreboot image
-        flashspi = FlashSPI(path=self.scp_dir + '/coreboot')
+        flashspi = FlashSPI(path=self.download_dir + '/coreboot')
         self.internal_pipeline.add_action(PowerOff())
         self.internal_pipeline.add_action(download)
         self.internal_pipeline.add_action(SPIPowerOn())
