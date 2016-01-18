@@ -20,7 +20,6 @@
 
 import os
 from lava_dispatcher.pipeline.logical import Deployment
-from lava_dispatcher.pipeline.connections.ssh import Scp
 from lava_dispatcher.pipeline.action import Pipeline, Action, InfrastructureError
 from lava_dispatcher.pipeline.utils.filesystem import mkdtemp
 from lava_dispatcher.pipeline.actions.deploy import DeployAction
