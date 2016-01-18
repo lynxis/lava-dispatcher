@@ -103,7 +103,7 @@ class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attribut
 class FlashSPI(Action):
     def __init__(self, path):
         super(FlashSPI, self).__init__()
-        self.name = "flash spi"
+        self.name = "flash_spi"
         self.summary = "execute flashrom to flash the device"
         self.description = "execute flashrom to flash the device"
         self.path = path  # path to the image to flash
