@@ -108,6 +108,7 @@ class FlashSPI(Action):
         connection = super(FlashSPI, self).run(connection, args)
         flashrom_cmd = "flashrom -p linux_spi:dev=%s -c %s -w %s" % \
                 (self.job.device["flashrom"]["dev"], self.job.device["flashrom"]["chip"], self.path)
+        self.logger.debug("Start running flashrom")
         command_output = self.run_command(flashrom_cmd)
 
 class SPIPowerOn(Action):
@@ -128,6 +129,7 @@ class SPIPowerOn(Action):
         if self.job.device.power_state is not 'off':
             raise RuntimeError("device is powered. This can break the device!")
 
+        self.logger.debug("Turning spi power on")
         command = self.job.device['commands']['spi_power_on']
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
@@ -148,6 +150,7 @@ class SPIPowerOff(Action):
         if not hasattr(self.job.device, 'power_state'):
             return connection
 
+        self.logger.debug("Turning spi power off")
         command = self.job.device['commands']['spi_power_off']
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
@@ -165,6 +168,7 @@ class PowerButton(Action):
 
     def run(self, connection, args=None):
         connection = super(PowerButton, self).run(connection, args)
+        self.logger.debug("Pressing power button")
         command = self.job.device['commands']['power_button']
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
