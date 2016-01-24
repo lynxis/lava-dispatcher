@@ -86,12 +86,10 @@ class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attribut
         # download coreboot image
         download = DownloaderAction('coreboot', path=self.download_dir)
         download.max_retries = 3  # overridden by failure_retry in the parameters, if set.
-        # download coreboot image
-        flashspi = FlashSPI(path=self.download_dir + '/coreboot')
         self.internal_pipeline.add_action(PowerOff())
         self.internal_pipeline.add_action(download)
         self.internal_pipeline.add_action(SPIPowerOn())
-        self.internal_pipeline.add_action(flashspi)
+        self.internal_pipeline.add_action(FlashSPI())
         self.internal_pipeline.add_action(SPIPowerOff())
         self.internal_pipeline.add_action(PowerOn())
         self.internal_pipeline.add_action(PowerButton())
