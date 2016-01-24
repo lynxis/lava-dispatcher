@@ -97,17 +97,16 @@ class FlashRomDeploy(DeployAction):  # pylint:disable=too-many-instance-attribut
         self.internal_pipeline.add_action(PowerButton())
 
 class FlashSPI(Action):
-    def __init__(self, path):
+    def __init__(self):
         super(FlashSPI, self).__init__()
         self.name = "flash_spi"
         self.summary = "execute flashrom to flash the device"
         self.description = "execute flashrom to flash the device"
-        self.path = path  # path to the image to flash
 
     def run(self, connection, args=None):
         connection = super(FlashSPI, self).run(connection, args)
         params = self.job.device['actions']['deploy']['methods']['flashrom']
-        flashrom_cmd = "flashrom -w %s" % self.path
+        flashrom_cmd = "flashrom -w %s" % self.data['download_action']['coreboot']['file']
         if 'chip' in params:
             flashrom_cmd += " -c %s" % params['chip']
         if 'driver' in params:
