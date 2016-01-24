@@ -106,8 +106,12 @@ class FlashSPI(Action):
 
     def run(self, connection, args=None):
         connection = super(FlashSPI, self).run(connection, args)
-        flashrom_cmd = "flashrom -p linux_spi:dev=%s -c %s -w %s" % \
-                (self.job.device["flashrom"]["dev"], self.job.device["flashrom"]["chip"], self.path)
+        params = self.job.device['actions']['deploy']['methods']['flashrom']
+        flashrom_cmd = "flashrom -w %s" % self.path
+        if 'chip' in params:
+            flashrom_cmd += " -c %s" % params['chip']
+        if 'driver' in params:
+            flashrom_cmd += " -p %s" % params['driver']
         self.logger.debug("Start running flashrom")
         command_output = self.run_command(flashrom_cmd)
 
