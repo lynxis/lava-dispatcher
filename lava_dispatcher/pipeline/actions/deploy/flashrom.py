@@ -113,7 +113,7 @@ class FlashSPI(Action):
         if 'driver' in params:
             flashrom_cmd += " -p %s" % params['driver']
         self.logger.debug("Start running flashrom")
-        command_output = self.run_command(flashrom_cmd)
+        command_output = self.run_command(flashrom_cmd.split(' '))
 
 class SPIPowerOn(Action):
     """
