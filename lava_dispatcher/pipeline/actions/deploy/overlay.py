@@ -111,6 +111,7 @@ class OverlayAction(DeployAction):
         * create test runner directories beneath the temporary location
         * copy runners into test runner directories
         """
+        self.logger.warn("Problem: %s", self.data)
         self.data[self.name].setdefault('location', mkdtemp())
         self.logger.debug("Preparing overlay tarball in %s", self.data[self.name]['location'])
         if 'lava_test_results_dir' not in self.data:
