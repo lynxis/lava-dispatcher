@@ -154,11 +154,6 @@ class JobParser(object):
                     action_data[name].update(self._map_context_defaults())
                 counts.setdefault(name, 1)
                 if name == 'deploy' or name == 'boot' or name == 'test':
-                    # reset the context before adding a second deployment and again before third etc.
-                    if name == 'deploy' and counts[name] >= 2:
-                        reset_context = ResetContext()
-                        reset_context.section = name
-                        pipeline.add_action(reset_context)
                     parse_action(action_data, name, device, pipeline)
                 elif name == 'repeat':
                     count = action_data[name]['count']  # first list entry must be the count dict
