@@ -230,7 +230,7 @@ class PowerOff(Action):
         connection = super(PowerOff, self).run(connection, args)
         if not hasattr(self.job.device, 'power_state'):
             return connection
-        if self.job.device.power_state is 'on':  # allow for '' and skip
+        if self.job.device.power_state is not '':  # allow for '' and skip
             command = self.job.device['commands']['power_off']
             if not self.run_command(command.split(' '), allow_silent=True):
                 raise InfrastructureError("%s command failed" % command)
