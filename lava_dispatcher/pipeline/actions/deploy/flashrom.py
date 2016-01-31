@@ -174,6 +174,6 @@ class PowerButton(Action):
         command = self.job.device['commands']['power_button']
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
-        self.run_command(['sleep', '15'])
+        self.run_command(['sleep', '45'])
         return connection
 
