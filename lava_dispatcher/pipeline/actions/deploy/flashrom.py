@@ -170,6 +170,7 @@ class PowerButton(Action):
     def run(self, connection, args=None):
         connection = super(PowerButton, self).run(connection, args)
         self.logger.debug("Pressing power button")
+        self.run_command(['sleep', '15'])
         command = self.job.device['commands']['power_button']
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
