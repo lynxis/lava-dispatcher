@@ -27,6 +27,7 @@ from lava_dispatcher.pipeline.logical import Boot
 from lava_dispatcher.pipeline.actions.boot import BootAction, AutoLoginAction
 from lava_dispatcher.pipeline.shell import ExpectShellSession
 from lava_dispatcher.pipeline.connections.serial import ConnectDevice
+from time import sleep
 
 class BootFlashrom(Boot):
     """
@@ -84,6 +85,8 @@ class PowerButton(Action):
     def run(self, connection, args=None):
         connection = super(PowerButton, self).run(connection, args)
         self.logger.debug("Pressing power button")
+        self.logger.info("Wait 10 secs before pressing the button to give pdu daemon enough time to react")
+        sleep(10)
         command = self.job.device['commands']['power_button']
         if not self.run_command(command.split(' ')):
             raise InfrastructureError("%s command failed" % command)
