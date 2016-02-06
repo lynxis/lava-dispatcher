@@ -18,6 +18,7 @@
 # along
 # with this program; if not, see <http://www.gnu.org/licenses>.
 
+import logging
 import yaml
 from yaml.composer import Composer
 from yaml.constructor import Constructor
@@ -192,6 +193,8 @@ class JobParser(object):
         finalize.populate(self._map_context_defaults())
         data['output_dir'] = output_dir
         job.set_pipeline(pipeline)
+        logger = logging.getLogger('dispatcher')
+        logger.warn("pipeline contains %x", pipeline)
         if 'compatibility' in data:
             try:
                 job_c = int(job.compatibility)
