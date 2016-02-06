@@ -66,6 +66,11 @@ class BootFlashromAction(BootAction):
         self.internal_pipeline.add_action(AutoLoginAction())
         self.internal_pipeline.add_action(ExpectShellSession())  # wait
 
+    def run(self, connection, args=None):
+        connection = super(BootFlashromAction, self).run(connection, args)
+        self.data['boot-result'] = 'failed' if self.errors else 'success'
+        return connection
+
 class PowerButton(Action):
     """
     press the power button
