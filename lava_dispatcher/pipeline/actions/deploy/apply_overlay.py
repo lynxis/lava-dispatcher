@@ -167,7 +167,9 @@ class ApplyOverlayTftp(Action):
         else:
             self.logger.debug("No overlay directory")
             self.logger.debug(self.parameters)
-        untar_file(overlay_file, directory)
+
+        if overlay_file and directory:
+            untar_file(overlay_file, directory)
         if nfs_url:
             subprocess.check_output(['umount', directory])
             os.rmdir(directory)  # fails if the umount fails
