@@ -205,7 +205,7 @@ class UBootInterrupt(Action):
         self.wait(connection)
         autoboot_escape = device_methods['u-boot']['parameters'].get('autoboot_escape', ' ')
         connection.sendline('%s\n' % autoboot_escape)
-        connection.prompt_str = self.parameters['u-boot']['parameters']['bootloader_prompt']
+        connection.prompt_str = device_methods['u-boot']['parameters']['bootloader_prompt']
         self.wait(connection)
         return connection
 
