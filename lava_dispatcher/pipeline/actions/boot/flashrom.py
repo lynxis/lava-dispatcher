@@ -25,6 +25,7 @@ from lava_dispatcher.pipeline.action import (
 )
 from lava_dispatcher.pipeline.logical import Boot
 from lava_dispatcher.pipeline.actions.boot import BootAction, AutoLoginAction
+from lava_dispatcher.pipeline.power import ResetDevice
 from lava_dispatcher.pipeline.shell import ExpectShellSession
 from lava_dispatcher.pipeline.connections.serial import ConnectDevice
 from time import sleep
@@ -62,6 +63,7 @@ class BootFlashromAction(BootAction):
 
     def populate(self, parameters):
         self.internal_pipeline = Pipeline(parent=self, job=self.job, parameters=parameters)
+        self.internal_pipeline.add_action(ResetDevice())
         self.internal_pipeline.add_action(ConnectDevice())
         self.internal_pipeline.add_action(PowerButton())
         self.internal_pipeline.add_action(AutoLoginAction())
